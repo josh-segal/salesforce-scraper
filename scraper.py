@@ -2,6 +2,7 @@ import os
 import time
 import logging
 from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
@@ -11,12 +12,14 @@ load_dotenv()
 
 logging.basicConfig(level=logging.INFO)
 
-class ContactInfoUpdater:
+class ContactInfoScraper:
     def __init__(self):
         self.url = os.getenv('CRM_URL')
         self.username = os.getenv('CRM_USERNAME')
         self.password = os.getenv('CRM_PASSWORD')
-        self.driver = webdriver.Chrome()
+        chrome_options = Options()
+        # chrome_options.add_experimental_option("detach", True)
+        self.driver = webdriver.Chrome(options=chrome_options)
 
     def login_crm(self):
         try:
@@ -42,15 +45,29 @@ class ContactInfoUpdater:
             time.sleep(5)
         except Exception as e:
             logging.error(f"Error during login: {e}")
-            self.driver.quit()
+            close()
+            raise
+
+    def navigate_to_contacts(self):
+        try:
+            self.driver.get("https://hillel-heart.my.site.com/s/contact/Contact/Default")
+            logging.info("Navigated to contacts page")
+        except Exception as e:
+            logging.error(f"Error navigating to contacts: {e}")
+            close()
             raise
     
 
     def close(self):
+        logging.info("Closing the browser")
         self.driver.quit()
 
-updater = ContactInfoUpdater()
-try:
-    updater.login_crm()
-finally:
-    updater.close()
+scraper = ContactInfoScraper()
+
+scraper.login_crm()
+scraper.navigate_to_contacts()
+
+# scraper.close()
+
+
+    
