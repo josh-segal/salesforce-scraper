@@ -1,8 +1,15 @@
 import os
-from dotenv import load_dotenv
+import time
+import logging
 from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from dotenv import load_dotenv
 
 load_dotenv()
+
+logging.basicConfig(level=logging.INFO)
 
 class ContactInfoUpdater:
     def __init__(self):
@@ -12,14 +19,32 @@ class ContactInfoUpdater:
         self.driver = webdriver.Chrome()
 
     def login_crm(self):
-        self.driver.get(self.url)
-        username_field = self.driver.find_element(By.XPATH, "/html/body/div[3]/div[2]/div/div[2]/div/div[1]/div/div[1]/div/input")
-        password_field = self.driver.find_element(By.XPATH, "/html/body/div[3]/div[2]/div/div[2]/div/div[1]/div/div[2]/div/input")
-        username_field.send_keys(self.username)
-        password_field.send_keys(self.password)
-        login_button = self.driver.find_element(By.XPATH, "/html/body/div[3]/div[2]/div/div[2]/div/div[1]/div/div[3]/button/span")
-        login_button.click()
-        time.sleep(5)
+        try:
+            self.driver.get(self.url)
+            logging.info("Navigated to CRM login page")
+
+            username_field = WebDriverWait(self.driver, 10).until(
+                EC.presence_of_element_located((By.XPATH, "/html/body/div[3]/div[2]/div/div[2]/div/div[1]/div/div[1]/div/input"))
+            )
+            password_field = WebDriverWait(self.driver, 10).until(
+                EC.presence_of_element_located((By.XPATH, "/html/body/div[3]/div[2]/div/div[2]/div/div[1]/div/div[2]/div/input"))
+            )
+            username_field.send_keys(self.username)
+            password_field.send_keys(self.password)
+            logging.info("Entered username and password")
+
+            login_button = WebDriverWait(self.driver, 10).until(
+                EC.element_to_be_clickable((By.XPATH, "/html/body/div[3]/div[2]/div/div[2]/div/div[1]/div/div[3]/button/span"))
+            )
+            login_button.click()
+            logging.info("Clicked login button")
+
+            time.sleep(5)
+        except Exception as e:
+            logging.error(f"Error during login: {e}")
+            self.driver.quit()
+            raise
+    
 
     def close(self):
         self.driver.quit()
