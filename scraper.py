@@ -63,27 +63,15 @@ class ContactInfoScraper:
         # wait = WebDriverWait(self.driver, 10)
         # rows = self.driver.find_elements(By.XPATH, "/html/body/div[3]/div[3]/div/div[2]/div/div/div/div[2]/div/div[1]/div[2]/div[2]/div[1]/div/div/table/tbody/tr")
         rows =  WebDriverWait(self.driver, 10).until(EC.visibility_of_all_elements_located((By.XPATH, "//table/tbody/tr")))
-        logging.info("Got rows")
-        logging.info(f"Rows: {len(rows)}")
-        logging.info(rows)
-        # for index, row in enumerate(rows, start=1):
-        #     try:
-        #         # Locate the button within the row
-        #         logging.info(f"Checking row {index}")
-        #         button = row.find_element(By.XPATH, "./td[7]//button")
-                
-        #         # Extract text
-        #         assistive_text_element = button.find_element(By.XPATH, ".//span[@class='slds-assistive-text']")
-        #         assistive_text = assistive_text_element.text
-                
-        #         # Check if text contains "null"
-        #         is_null = "null" in assistive_text.lower()
-                
-        #         print(f"Row {index}: {'NULL' if is_null else 'Contains Data'} - {assistive_text}")
+        
+        table_data = []
+        for row in rows:
+            cells = row.find_elements(By.TAG_NAME, "td") 
+            row_data = [cell.text.strip() for cell in cells]  
+            table_data.append(row_data)
 
-        #     except Exception as e:
-        #         loging.info(f"Row {index}: Button not found or error - {str(e)}")
-    
+        for row in table_data:
+            print(row[6])
 
     def close(self):
         logging.info("Closing the browser")
@@ -95,7 +83,7 @@ scraper.login_crm()
 scraper.navigate_to_contacts()
 scraper.parse_empty_contacts()
 
-# scraper.close()
+scraper.close()
 
 
     
