@@ -71,7 +71,8 @@ class ContactInfoScraper:
             table_data.append(row_data)
 
         for row in table_data:
-            print(row[6])
+            print(row[5]) # prints email address
+            print(row[6]) # prints phone number
 
     def close(self):
         logging.info("Closing the browser")
